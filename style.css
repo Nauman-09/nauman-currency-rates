@@ -1,0 +1,284 @@
+.ncr-rates {
+	max-width: 380px;
+	margin: 1.5em 0;
+	padding: 20px 22px;
+	border: 1px solid #dcdff2;
+	border-radius: 14px;
+	background: #ffffff;
+	color: #1b1e3a;
+	box-shadow: 0 6px 18px rgba(30, 34, 90, 0.08);
+}
+
+.ncr-rates__title {
+	margin: 0 0 12px;
+	font-size: 18px;
+	font-weight: 700;
+	color: #3b3dd1;
+}
+
+.ncr-rates__list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.ncr-rates__item {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	margin: 0;
+	padding: 10px 0;
+	border-top: 1px solid #eceefa;
+	font-size: 16px;
+}
+
+.ncr-rates__code {
+	font-weight: 700;
+	letter-spacing: 0.04em;
+}
+
+.ncr-rates__value {
+	font-variant-numeric: tabular-nums;
+}
+
+.ncr-rates__meta {
+	margin: 12px 0 0;
+	font-size: 13px;
+	color: #5b6086;
+}
+
+.ncr-rates--error {
+	border-color: #f0c9c9;
+	background: #fff7f7;
+	color: #7a1f1f;
+	box-shadow: none;
+}
+
+.ncr-rates--error p {
+	margin: 0;
+}
+
+/* ---- Hero card: [ncr_card] ---- */
+.ncr-card {
+	width: 100%;
+	max-width: 460px;
+	box-sizing: border-box;
+	padding: 28px;
+	border-radius: 24px;
+	background: #ffffff;
+	color: #0c1030;
+	box-shadow: 0 30px 70px rgba(0, 0, 0, 0.4);
+}
+
+.ncr-card__head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.ncr-card__title {
+	margin: 0;
+	font-size: 20px;
+	font-weight: 700;
+	color: #0c1030;
+}
+
+.ncr-card__pill {
+	padding: 5px 12px;
+	border-radius: 999px;
+	background: #eef0ff;
+	color: #3b3dd1;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.ncr-card__list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.ncr-card__row {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin: 0;
+	padding: 14px 0;
+	border-top: 1px solid #eceefa;
+}
+
+.ncr-card__row:first-child {
+	border-top: 0;
+}
+
+.ncr-card__code {
+	min-width: 52px;
+	padding: 5px 0;
+	border-radius: 8px;
+	background: #0c1030;
+	color: #ffffff;
+	font-size: 14px;
+	font-weight: 700;
+	text-align: center;
+	letter-spacing: 0.03em;
+}
+
+.ncr-card__name {
+	flex: 1;
+	color: #565b80;
+	font-size: 15px;
+}
+
+.ncr-card__value {
+	font-size: 18px;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+}
+
+.ncr-card__foot {
+	margin: 14px 0 0;
+	color: #565b80;
+	font-size: 13px;
+}
+
+.ncr-card--error {
+	background: #fff7f7;
+	color: #7a1f1f;
+	box-shadow: none;
+}
+
+.ncr-card--error p {
+	margin: 0;
+}
+
+@media (max-width: 767px) {
+	.ncr-card {
+		max-width: 100%;
+		padding: 22px;
+	}
+}
+
+/* ---- Calculator: [ncr_converter] ---- */
+.ncr-conv {
+	width: 100%;
+	max-width: 485px;
+	box-sizing: border-box;
+	padding: 32px;
+	border: 1px solid #e0e2f5;
+	border-radius: 28px;
+	background: #ffffff;
+	color: #0c1030;
+}
+
+.ncr-conv__label {
+	display: block;
+	margin: 0 0 10px;
+	font-size: 15px;
+	font-weight: 600;
+	color: #0c1030;
+}
+
+.ncr-conv__chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-bottom: 24px;
+}
+
+.ncr-conv__chip {
+	min-width: 64px;
+	padding: 11px 18px;
+	border: 2px solid #dadcf0;
+	border-radius: 999px;
+	background: #ffffff;
+	color: #0c1030;
+	font: inherit;
+	font-size: 15px;
+	font-weight: 600;
+	line-height: 1.2;
+	cursor: pointer;
+	transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.ncr-conv__chip:hover {
+	border-color: #5b5cf0;
+}
+
+.ncr-conv__chip.is-active {
+	background: #0c1030;
+	border-color: #0c1030;
+	color: #ffffff;
+}
+
+.ncr-conv__chip:focus-visible,
+.ncr-conv__input:focus-visible {
+	outline: 3px solid #2dd4bf;
+	outline-offset: 2px;
+}
+
+.ncr-conv__input {
+	display: block;
+	width: 100%;
+	box-sizing: border-box;
+	margin: 0 0 24px;
+	padding: 14px 18px;
+	border: 2px solid #dadcf0;
+	border-radius: 14px;
+	background: #f8f9ff;
+	color: #0c1030;
+	font: inherit;
+	font-size: 22px;
+	font-weight: 500;
+}
+
+.ncr-conv__result {
+	padding: 24px;
+	border-radius: 18px;
+	background: #0c1030;
+}
+
+.ncr-conv__sub {
+	margin: 0 0 6px;
+	color: #c9cbe6;
+	font-size: 15px;
+}
+
+.ncr-conv__total {
+	margin: 0;
+	color: #2dd4bf;
+	font-size: 40px;
+	font-weight: 800;
+	line-height: 1.1;
+	letter-spacing: -0.01em;
+	font-variant-numeric: tabular-nums;
+	overflow-wrap: anywhere;
+}
+
+.ncr-conv__foot {
+	margin: 14px 0 0;
+	color: #565b80;
+	font-size: 13px;
+}
+
+.ncr-conv--error {
+	background: #fff7f7;
+	color: #7a1f1f;
+}
+
+.ncr-conv--error p {
+	margin: 0;
+}
+
+@media (max-width: 767px) {
+	.ncr-conv {
+		max-width: 100%;
+		padding: 22px;
+	}
+
+	.ncr-conv__total {
+		font-size: 32px;
+	}
+}
