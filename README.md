@@ -4,6 +4,10 @@ A small WordPress plugin that shows live currency exchange rates anywhere on you
 
 Built as a learning and portfolio project to demonstrate external API integration, the WordPress Settings API, caching with transients, and secure PHP.
 
+<img width="1603" height="4896" alt="meridianexchange syednauman com_" src="https://github.com/user-attachments/assets/68cbb426-3bdb-4491-8e0f-20269d4c0c1b" />
+Live demo: [meridianexchange.syednauman.com](https://meridianexchange.syednauman.com)
+
+
 ## Features
 
 - `[ncr_rates]` shortcode with per-use overrides (base currency, currencies, amount)
@@ -24,7 +28,7 @@ Built as a learning and portfolio project to demonstrate external API integratio
 
 ## Usage
 
-Add the shortcode to any page, post or text widget:
+Add the shortcode to any page, post, or text widget:
 
 ```
 [ncr_rates]
@@ -64,7 +68,7 @@ Shows what 1 unit of each currency is worth in the `target` currency (default PK
 
 1. The shortcode asks `ncr_fetch_rates()` for data.
 2. A fresh cached copy is returned if there is one.
-3. Otherwise the plugin calls `wp_remote_get()` with an 8 second timeout and validates the JSON.
+3. Otherwise, the plugin calls `wp_remote_get()` with an 8-second timeout and validates the JSON.
 4. Good data is cached for the chosen time and also kept for 24 hours as a fallback copy.
 5. If the request fails, the plugin remembers the failure for 2 minutes and serves the fallback copy if it has one. Visitors only see a generic message; administrators also see the technical reason.
 
