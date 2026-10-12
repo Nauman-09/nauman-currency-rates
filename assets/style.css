@@ -282,3 +282,23 @@
 		font-size: 32px;
 	}
 }
+
+/* ---- Gutenberg block wrappers ---- */
+.wp-block-nauman-rates-card.aligncenter .ncr-card,
+.wp-block-nauman-currency-converter.aligncenter .ncr-conv {
+	margin-left: auto;
+	margin-right: auto;
+}
+.wp-block-nauman-rates-card.alignright .ncr-card,
+.wp-block-nauman-currency-converter.alignright .ncr-conv {
+	margin-left: auto;
+}
+/* editor preview: no entrance animation, no float */
+.ncr-card--editor,
+.ncr-conv--editor {
+	animation: none;
+}
+.ncr-card--editor .ncr-card__row {
+	opacity: 1;
+	animation: none;
+}

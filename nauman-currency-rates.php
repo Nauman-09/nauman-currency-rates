@@ -2,9 +2,9 @@
 /**
  * Plugin Name:       Nauman Currency Rates
  * Plugin URI:        https://syednauman.com
- * Description:       Shows live currency exchange rates with a shortcode. Fetches data from the free open.er-api.com feed (supports PKR, AED, SAR), caches it, and includes a settings page.
- * Version:           1.2.0
- * Requires at least: 5.8
+ * Description:       Shows live currency exchange rates with Gutenberg blocks or shortcodes. Fetches data from the free open.er-api.com feed (supports PKR, AED, SAR), caches it, and includes a settings page.
+ * Version:           2.0.0
+ * Requires at least: 6.5
  * Requires PHP:      7.4
  * Author:            Syed Nauman
  * Author URI:        https://syednauman.com
@@ -16,7 +16,7 @@
 // Stop direct access to this file.
 defined( 'ABSPATH' ) || exit;
 
-define( 'NCR_VERSION', '1.2.0' );
+define( 'NCR_VERSION', '2.0.0' );
 define( 'NCR_OPTION', 'ncr_settings' );
 define( 'NCR_API_URL', 'https://open.er-api.com/v6/latest' );
 
@@ -470,6 +470,158 @@ function ncr_converter_shortcode( $atts ) {
 add_shortcode( 'ncr_converter', 'ncr_converter_shortcode' );
 
 /* -------------------------------------------------------------------------
+ * Gutenberg blocks (v2.0)
+ * ---------------------------------------------------------------------- */
+
+/**
+ * Turn the "symbols" block attribute (array or string) into "USD,EUR".
+ *
+ * @param array $attributes Block attributes.
+ * @return string
+ */
+function ncr_symbols_from_attributes( $attributes ) {
+	if ( empty( $attributes['symbols'] ) ) {
+		return '';
+	}
+	$symbols = $attributes['symbols'];
+	return is_array( $symbols ) ? implode( ',', array_map( 'strval', $symbols ) ) : (string) $symbols;
+}
+
+/**
+ * Server-side render for the "Currency Rates Card" block.
+ * It reuses the shortcode, so blocks and shortcodes always match.
+ *
+ * @param array $attributes Block attributes.
+ * @return string
+ */
+function ncr_render_rates_card_block( $attributes ) {
+	$attributes = is_array( $attributes ) ? $attributes : array();
+	$html       = ncr_card_shortcode(
+		array(
+			'target'  => isset( $attributes['target'] ) ? $attributes['target'] : 'PKR',
+			'symbols' => ncr_symbols_from_attributes( $attributes ),
+			'title'   => isset( $attributes['title'] ) ? $attributes['title'] : __( "Today's rates", 'nauman-currency-rates' ),
+			'note'    => isset( $attributes['note'] ) ? $attributes['note'] : '',
+		)
+	);
+	return '<div ' . get_block_wrapper_attributes() . '>' . $html . '</div>';
+}
+
+/**
+ * Server-side render for the "Currency Calculator" block.
+ *
+ * @param array $attributes Block attributes.
+ * @return string
+ */
+function ncr_render_converter_block( $attributes ) {
+	$attributes = is_array( $attributes ) ? $attributes : array();
+	$args       = array(
+		'target'  => isset( $attributes['target'] ) ? $attributes['target'] : 'PKR',
+		'symbols' => ncr_symbols_from_attributes( $attributes ),
+		'amount'  => isset( $attributes['amount'] ) ? $attributes['amount'] : 100,
+	);
+	if ( isset( $attributes['label'] ) && '' !== trim( (string) $attributes['label'] ) ) {
+		$args['label'] = $attributes['label'];
+	}
+	$html = ncr_converter_shortcode( $args );
+	return '<div ' . get_block_wrapper_attributes() . '>' . $html . '</div>';
+}
+
+/**
+ * Register both blocks from the compiled build/ folder.
+ */
+function ncr_register_blocks() {
+	$blocks = array(
+		'rates-card' => 'ncr_render_rates_card_block',
+		'converter'  => 'ncr_render_converter_block',
+	);
+	foreach ( $blocks as $folder => $callback ) {
+		$path = __DIR__ . '/build/' . $folder;
+		if ( file_exists( $path . '/block.json' ) ) {
+			register_block_type( $path, array( 'render_callback' => $callback ) );
+		}
+	}
+}
+add_action( 'init', 'ncr_register_blocks' );
+
+/**
+ * Load the plugin stylesheet inside the block editor so previews look right.
+ */
+function ncr_editor_assets() {
+	if ( is_admin() ) {
+		wp_enqueue_style( 'ncr-style', plugin_dir_url( __FILE__ ) . 'assets/style.css', array(), NCR_VERSION );
+	}
+}
+add_action( 'enqueue_block_assets', 'ncr_editor_assets' );
+
+/**
+ * REST route used only by the editor preview:
+ * GET /wp-json/ncr/v1/rates?target=PKR&symbols=USD,EUR
+ * Returns the value of 1 unit of each symbol in the target currency.
+ * Limited to people who can edit posts, so it is not an open proxy.
+ */
+function ncr_register_rest_routes() {
+	register_rest_route(
+		'ncr/v1',
+		'/rates',
+		array(
+			'methods'             => 'GET',
+			'callback'            => 'ncr_rest_rates',
+			'permission_callback' => function () {
+				return current_user_can( 'edit_posts' );
+			},
+			'args'                => array(
+				'target'  => array(
+					'type'              => 'string',
+					'default'           => 'PKR',
+					'sanitize_callback' => 'ncr_sanitize_code',
+				),
+				'symbols' => array(
+					'type'              => 'string',
+					'default'           => 'USD,EUR,GBP,AED,SAR',
+					'sanitize_callback' => 'ncr_sanitize_codes',
+				),
+			),
+		)
+	);
+}
+add_action( 'rest_api_init', 'ncr_register_rest_routes' );
+
+/**
+ * REST callback.
+ *
+ * @param WP_REST_Request $request Request.
+ * @return WP_REST_Response|WP_Error
+ */
+function ncr_rest_rates( $request ) {
+	$settings = ncr_get_settings();
+	$target   = ncr_sanitize_code( $request->get_param( 'target' ) );
+	$symbols  = ncr_sanitize_codes( $request->get_param( 'symbols' ) );
+	$target   = '' !== $target ? $target : 'PKR';
+	$symbols  = '' !== $symbols ? $symbols : 'USD,EUR,GBP,AED,SAR';
+
+	$data = ncr_fetch_rates( $target, $symbols, (int) $settings['cache_minutes'] );
+	if ( is_wp_error( $data ) ) {
+		return new WP_Error( 'ncr_unavailable', $data->get_error_message(), array( 'status' => 502 ) );
+	}
+
+	$per_unit = array();
+	foreach ( explode( ',', $symbols ) as $code ) {
+		if ( isset( $data['rates'][ $code ] ) && $data['rates'][ $code ] > 0 ) {
+			$per_unit[ $code ] = round( 1 / $data['rates'][ $code ], 6 );
+		}
+	}
+
+	return rest_ensure_response(
+		array(
+			'target' => $target,
+			'date'   => $data['date'],
+			'rates'  => $per_unit,
+		)
+	);
+}
+
+/* -------------------------------------------------------------------------
  * Admin: settings page
  * ---------------------------------------------------------------------- */
 
@@ -574,6 +726,7 @@ function ncr_render_settings_page() {
 			<p><?php esc_html_e( 'Hero card (what 1 unit of each currency is worth in PKR):', 'nauman-currency-rates' ); ?></p>
 			<p><?php esc_html_e( 'Calculator (pick a currency, type an amount):', 'nauman-currency-rates' ); ?></p>
 			<p><code>[ncr_converter]</code></p>
+			<p><?php esc_html_e( 'Or use the blocks: in the editor, add "Currency Rates Card" or "Currency Calculator" (Widgets category).', 'nauman-currency-rates' ); ?></p>
 			<p><code>[ncr_card]</code> &nbsp; <code>[ncr_card target="PKR" symbols="USD,EUR,GBP,AED,SAR"]</code></p>
 	</div>
 	<?php

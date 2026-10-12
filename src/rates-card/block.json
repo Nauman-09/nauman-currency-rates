@@ -1,0 +1,28 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "nauman/rates-card",
+	"version": "2.0.0",
+	"title": "Currency Rates Card",
+	"category": "widgets",
+	"icon": "money-alt",
+	"description": "Shows what 1 unit of each currency is worth in your target currency, with live cached rates.",
+	"keywords": [ "currency", "exchange", "rates", "forex" ],
+	"textdomain": "nauman-currency-rates",
+	"attributes": {
+		"target": { "type": "string", "default": "PKR" },
+		"symbols": {
+			"type": "array",
+			"items": { "type": "string" },
+			"default": [ "USD", "EUR", "GBP", "AED", "SAR" ]
+		},
+		"title": { "type": "string", "default": "Today's rates" },
+		"note": { "type": "string", "default": "" }
+	},
+	"supports": {
+		"html": false,
+		"align": [ "left", "center", "right" ],
+		"spacing": { "margin": true }
+	},
+	"editorScript": "file:./index.js"
+}
