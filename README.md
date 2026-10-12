@@ -1,8 +1,8 @@
 # Nauman Currency Rates
 
-A small WordPress plugin that shows live currency exchange rates anywhere on your site with a shortcode. It calls the free [ExchangeRate-API open endpoint](https://www.exchangerate-api.com/docs/free) (no API key needed; covers PKR, AED, SAR and ~160 others), caches the result, and has a settings page.
+A small WordPress plugin that shows live currency exchange rates anywhere on your site with **Gutenberg blocks** or shortcodes. It calls the free [ExchangeRate-API open endpoint](https://www.exchangerate-api.com/docs/free) (no API key needed; covers PKR, AED, SAR and ~160 others), caches the result, and has a settings page.
 
-Built as a learning and portfolio project to demonstrate external API integration, the WordPress Settings API, caching with transients, and secure PHP.
+Built as a learning and portfolio project to demonstrate external API integration, the WordPress Settings API, caching with transients, secure PHP, and block development (React, `block.json`, server-side rendering, a REST route).
 
 <img width="1603" height="4896" alt="meridianexchange syednauman com_" src="https://github.com/user-attachments/assets/68cbb426-3bdb-4491-8e0f-20269d4c0c1b" />
 Live demo: [meridianexchange.syednauman.com](https://meridianexchange.syednauman.com)
@@ -10,6 +10,7 @@ Live demo: [meridianexchange.syednauman.com](https://meridianexchange.syednauman
 
 ## Features
 
+- **Two Gutenberg blocks** (Widgets category): *Currency Rates Card* and *Currency Calculator*, with a settings sidebar and a live preview in the editor
 - `[ncr_rates]` shortcode with per-use overrides (base currency, currencies, amount)
 - Settings page under **Settings → Currency Rates**
 - Caching with the Transients API (5 to 1440 minutes)
@@ -26,7 +27,18 @@ Live demo: [meridianexchange.syednauman.com](https://meridianexchange.syednauman
 2. In WordPress go to **Plugins → Add New → Upload Plugin**, upload the ZIP and activate.
 3. Go to **Settings → Currency Rates** to choose your defaults.
 
-## Usage
+## Blocks
+
+In the block editor, click **+** and search for **Currency Rates Card** or **Currency Calculator**.
+
+| Block | Sidebar settings |
+|---|---|
+| Currency Rates Card | Target currency, currencies to show, title, footer note |
+| Currency Calculator | Target currency, currencies to show, starting amount, amount label |
+
+Both blocks are rendered on the server (PHP), so the post only stores the block's settings and rates stay cached. The calculator adds one small script (no dependencies). The editor preview uses a REST route, `GET /wp-json/ncr/v1/rates`, which reads the same cached data and is limited to users who can edit posts.
+
+## Usage (shortcodes)
 
 Add the shortcode to any page, post, or text widget:
 
@@ -66,7 +78,7 @@ Shows what 1 unit of each currency is worth in the `target` currency (default PK
 
 ## How it works
 
-1. The shortcode asks `ncr_fetch_rates()` for data.
+1. The block or shortcode asks `ncr_fetch_rates()` for data.
 2. A fresh cached copy is returned if there is one.
 3. Otherwise, the plugin calls `wp_remote_get()` with an 8-second timeout and validates the JSON.
 4. Good data is cached for the chosen time and also kept for 24 hours as a fallback copy.
@@ -81,8 +93,28 @@ Shows what 1 unit of each currency is worth in the `target` currency (default PK
 
 ## Requirements
 
-- WordPress 5.8 or newer
+- WordPress 6.5 or newer
 - PHP 7.4 or newer
+
+## Development
+
+The editor code is in `src/` and compiles to `build/` (which is committed, so the plugin works without Node).
+
+```
+npm install
+npm run build   # production build
+npm start       # watch mode
+npm test        # component tests (jest)
+```
+
+```
+nauman-currency-rates.php   plugin, shortcodes, REST route, block registration
+src/rates-card/             block.json, index.js, edit.js
+src/converter/              block.json, index.js, edit.js
+src/shared/                 REST hook, controls, currency helpers
+build/                      compiled blocks (generated)
+assets/                     front-end CSS and calculator script
+```
 
 ## Credits
 
